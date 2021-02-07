@@ -1,5 +1,6 @@
 import tkinter
 import random
+import json
 
 bg_color = "#f7f6e7"
 color2 = "#e1bc91"
@@ -8,7 +9,43 @@ alphabets = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n
              'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
 characters = ['!', '@', '$', '&']
-options = [alphabets, numbers, characters]
+options = [alphabets, numbers, characters, alphabets]
+
+
+def search():
+    platform_name = platform.get()
+    with open("data.json") as file:
+        dictionary_ = json.load(file)
+        try:
+            user_data = dictionary_[platform_name]
+            print(user_data)
+            current_username = user_data["username"]
+            current_password = user_data["password"]
+
+            window_output = tkinter.Tk()
+            window_output.title(f"{platform_name} data")
+            window_output.config(bg=bg_color, width=450, height=240)
+
+            label_window_output = tkinter.Label(window_output)
+            label_window_output.config(text=f"username: {current_username}", font=("Courier", 20, "bold"))
+            label_window_output.place(x=20, y=30)
+
+            label_window_output3 = tkinter.Label(window_output)
+            label_window_output3.config(text="Password", font=("Courier", 20, "bold"))
+            label_window_output3.place(x=20, y=100)
+
+            label_window_output2 = tkinter.Entry(window_output)
+            label_window_output2.config(font=("Courier", 20, "bold"))
+            label_window_output2.insert(0, f"{current_password}")
+            label_window_output2.place(x=150, y=100)
+        except KeyError:
+            window_not_found = tkinter.Tk()
+            window_not_found.config(bg=bg_color, width=350, height=100)
+            window_not_found.title("Wrong name")
+
+            label_x = tkinter.Label(window_not_found)
+            label_x.config(text = "The name of platform you entered doesnt exist." )
+            label_x.place(x=30, y=30)
 
 
 def invalid_action():
@@ -32,8 +69,15 @@ def save_data():
     else:
         dictionary = {platform_: {"username": username_,
                                   "password": password_}}
-        with open("data.json", 'a') as file:
-            file.write(str(dictionary))
+        try:
+            with open("data.json", 'r') as file:
+                data = json.load(file)
+                data.update(dictionary)
+            with open("data.json", 'w') as file:
+                json.dump(data, file, indent=4)
+        except json.decoder.JSONDecodeError:
+            with open("data.json", 'w') as file:
+                json.dump(dictionary, file, indent=4)
 
 
 def lenth_taker_window():
@@ -83,19 +127,24 @@ display.config(bg=bg_color, width=700, height=600)
 
 username_label = tkinter.Label()
 username_label.config(text="Username/emailid", font=("Courier", 25, "bold"), bg=bg_color)
-username_label.place(x=20, y=280)
+username_label.place(x=20, y=340)
 
 username = tkinter.Entry()
 username.config(width=30, bg=color2)
-username.place(x=340, y=280)
+username.place(x=340, y=340)
 
 platform_label = tkinter.Label()
 platform_label.config(text="Name of Platform", font=("Courier", 25, "bold"), bg=bg_color)
-platform_label.place(x=20, y=340)
+platform_label.place(x=20, y=280)
 
 platform = tkinter.Entry()
-platform.config(width=30, bg=color2)
-platform.place(x=340, y=340)
+platform.config(width=20, bg=color2)
+platform.place(x=305, y=280)
+platform.focus()
+
+search_button = tkinter.Button()
+search_button.configure(text="Search", font=("Courier", 25, "bold"), command=search)
+search_button.place(x=520, y=280)
 
 password_label = tkinter.Label()
 password_label.config(text="Password", font=("Courier", 25, "bold"), bg=bg_color)
@@ -104,7 +153,7 @@ password_label.place(x=20, y=400)
 password = tkinter.Entry()
 password.place(x=170, y=405)
 password.config(width=25, bg=color2)
-password.focus()
+
 
 generate_button = tkinter.Button()
 generate_button.config(text="Generate", font=("Courier", 25, "bold"), command=lenth_taker_window)
